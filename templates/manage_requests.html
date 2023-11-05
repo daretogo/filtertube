@@ -25,7 +25,7 @@
             <tr>
                 <td>{{ request.requestor }}</td>
                 <td><a href="{{ request.URL }}" target="_blank">{{ request.URL }}</a></td>
-                <td>{{ request.video_title }}</td>
+                <td>{{ request.video_name }}</td>
                 <td>{{ request.channel_name }}</td>
                 <td>
                     <button onclick="processRequest({{ request.id }}, 'approve')" class="btn btn-success">Approve</button>
@@ -46,6 +46,7 @@
                 <th>Video Title</th>
                 <th>Channel Name</th>
                 <th>Status</th>
+                <th>Always Allow</th>
             </tr>
         </thead>
         <tbody>
@@ -54,9 +55,12 @@
                 <td>{{ request.date }}</td>
                 <td>{{ request.requestor }}</td>
                 <td><a href="{{ request.URL }}" target="_blank">{{ request.URL }}</a></td>
-                <td>{{ request.video_title }}</td>
+                <td>{{ request.video_name }}</td>
                 <td>{{ request.channel_name }}</td>
                 <td>{{ request.status }}</td>
+                <td>
+                    <button onclick="confirmAlwaysAllow('{{ request.channel_name }}')" class="btn btn-info">Always Allow</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -79,6 +83,27 @@
                 alert('Failed to process request.');
             }
         });
+    }
+
+    function confirmAlwaysAllow(channelName) {
+        if (confirm(`Do you really want to auto-approve all videos from ${channelName}?`)) {
+            fetch(`/api/always-allow-channel/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channelName }) // Pass the channel name in the request body
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert(`${channelName} has been added to the Always Allow list.`);
+                    location.reload();
+                } else {
+                    alert('Failed to add to Always Allow list.');
+                }
+            });
+        }
     }
 </script>
 

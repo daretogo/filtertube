@@ -72,8 +72,8 @@ def copy_to_history(db_connection, request_id):
     # Copy current row data to req_history table
     cursor.execute(
         """
-        INSERT INTO req_history (date, requestor, video_name, status, URL, channel_name, video_title)
-        SELECT date, requestor, video_name, status, URL, channel_name, video_title FROM req WHERE id = %s
+        INSERT INTO req_history (date, requestor, video_name, status, URL, channel_name, video_name)
+        SELECT date, requestor, video_name, status, URL, channel_name, video_name FROM req WHERE id = %s
         """,
         (request_id,)
     )
@@ -95,10 +95,10 @@ def video_request(username, video_id):
     db_connection = connect_db()
     cursor = db_connection.cursor()
     insert_query = (
-        "INSERT INTO req (date, requestor, video_name, status, URL, channel_name, video_title) "
-        "VALUES (NOW(), %s, %s, %s, %s, %s, %s)"
+        "INSERT INTO req (date, requestor, video_name, status, URL, channel_name) "
+        "VALUES (NOW(), %s, %s, %s, %s, %s)"
     )
-    cursor.execute(insert_query, (username, 'Video Title', 'Pending', video_url, channel, full_title))
+    cursor.execute(insert_query, (username, full_title, 'Pending', video_url, channel))
     db_connection.commit()
     cursor.close()
     db_connection.close()
@@ -128,7 +128,7 @@ def manage_requests():
     
     # Query the req_history table for historical requests
     cursor.execute(
-        "SELECT date, requestor, URL, video_title, channel_name, status FROM req_history ORDER BY date DESC LIMIT %s OFFSET %s",
+        "SELECT date, requestor, URL, video_name, channel_name, status FROM req_history ORDER BY date DESC LIMIT %s OFFSET %s",
         (per_page, offset)
     )
     history_requests = cursor.fetchall()
@@ -144,6 +144,27 @@ def manage_requests():
         history_requests=history_requests,
         page=page
     )
+
+
+@app.route('/api/always-allow-channel/', methods=['POST'])
+def always_allow_channel():
+    data = request.get_json()  # Get the JSON data sent to the endpoint
+    channel_name = data.get('channelName')  # Access the channelName from the JSON payload
+    
+    if not channel_name:
+        return jsonify({'status': 'failure', 'message': 'No channel name provided'}), 400
+
+    db_connection = connect_db()
+    cursor = db_connection.cursor()
+    try:
+        cursor.execute("INSERT INTO always_allow_channels (channel_name) VALUES (%s)", (channel_name,))
+        db_connection.commit()
+        return jsonify({'status': 'success', 'message': f'Channel {channel_name} always allowed'}), 201
+    except mysql.connector.Error as err:
+        return jsonify({'status': 'failure', 'message': str(err)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
 
 @app.route('/api/process-request/<int:request_id>/<action>', methods=['POST'])
 def process_request(request_id, action):
