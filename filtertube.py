@@ -128,7 +128,30 @@ def manage_channels():
     # Pass the list of always allowed channels to the template
     return render_template('manage_channels.html', channels=channels)
 
+@app.route('/filtertube/list')
+def list_requests():
+    db_connection = connect_db()
+    cursor = db_connection.cursor(dictionary=True)
+    
+    query = """
+    SELECT 
+        date, requestor, URL, video_name, channel_name, status
+    FROM 
+        (SELECT date, requestor, URL, video_name, channel_name, status FROM req
+        UNION ALL 
+        SELECT date, requestor, URL, video_name, channel_name, status FROM req_history) AS combined_requests
+    ORDER BY 
+        date DESC
 
+    """
+    
+    cursor.execute(query)
+    combined_requests = cursor.fetchall()
+    
+    cursor.close()
+    db_connection.close()
+    
+    return render_template('list_requests.html', combined_requests=combined_requests)
 
 @app.route('/parentportal/manage/requests')
 @login_required
