@@ -112,6 +112,24 @@ def video_request(username, video_id):
     }
     return jsonify(video_request), 201
 
+@app.route('/parentportal/manage/channels')
+@login_required
+def manage_channels():
+    db_connection = connect_db()
+    cursor = db_connection.cursor(dictionary=True)
+    
+    # Query the always_allow_channels table for the list of channels
+    cursor.execute("SELECT id, channel_name FROM always_allow_channels ORDER BY id DESC")
+    channels = cursor.fetchall()
+    
+    cursor.close()
+    db_connection.close()
+    
+    # Pass the list of always allowed channels to the template
+    return render_template('manage_channels.html', channels=channels)
+
+
+
 @app.route('/parentportal/manage/requests')
 @login_required
 def manage_requests():
@@ -144,6 +162,28 @@ def manage_requests():
         history_requests=history_requests,
         page=page
     )
+
+
+@app.route('/api/delete-channel/<int:channel_id>', methods=['DELETE'])
+def delete_channel(channel_id):
+    db_connection = connect_db()
+    cursor = db_connection.cursor()
+    try:
+        # Check if the channel exists before trying to delete
+        cursor.execute("SELECT * FROM always_allow_channels WHERE id = %s", (channel_id,))
+        channel = cursor.fetchone()
+        if not channel:
+            return jsonify({'status': 'failure', 'message': 'Channel not found'}), 404
+
+        # Delete the channel from the always_allow_channels table
+        cursor.execute("DELETE FROM always_allow_channels WHERE id = %s", (channel_id,))
+        db_connection.commit()
+        return jsonify({'status': 'success', 'message': f'Channel {channel_id} deleted successfully'}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'status': 'failure', 'message': str(err)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
 
 
 @app.route('/api/always-allow-channel/', methods=['POST'])

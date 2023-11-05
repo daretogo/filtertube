@@ -71,6 +71,11 @@
     </div>
 </div>
 
+<!-- Link to manage channels in the lower left -->
+<div class="lower-left-link">
+    <a href="./channels">Manage Allow-listed Channels</a>
+</div>
+
 <script>
     function processRequest(requestId, action) {
         fetch(`/api/process-request/${requestId}/${action}`, { method: 'POST' })
