@@ -69,26 +69,36 @@
     <div class="pagination">
         <a href="{{ url_for('manage_requests', page=page+1) }}" rel="next">Next Page &raquo;</a>
     </div>
-</div>
+
 
 <!-- Link to manage channels in the lower left -->
 <div class="lower-left-link">
     <a href="./channels">Manage Allow-listed Channels</a>
 </div>
+</div>
 
 <script>
     function processRequest(requestId, action) {
-        fetch(`/api/process-request/${requestId}/${action}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'success') {
-                alert('Request processed successfully.');
-                location.reload();
-            } else {
-                alert('Failed to process request.');
-            }
-        });
-    }
+    fetch(`/api/process-request/${requestId}/${action}`, { method: 'POST' })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Server responded with an error.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if(data.status === 'success') {
+            alert('Request processed successfully.');
+            location.reload();
+        } else {
+            alert('Failed to process request.');
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('An error occurred while processing the request.');
+    });
+}
 
     function confirmAlwaysAllow(channelName) {
         if (confirm(`Do you really want to auto-approve all videos from ${channelName}?`)) {

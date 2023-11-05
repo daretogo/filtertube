@@ -72,8 +72,8 @@ def copy_to_history(db_connection, request_id):
     # Copy current row data to req_history table
     cursor.execute(
         """
-        INSERT INTO req_history (date, requestor, video_name, status, URL, channel_name, video_name)
-        SELECT date, requestor, video_name, status, URL, channel_name, video_name FROM req WHERE id = %s
+        INSERT INTO req_history (date, requestor, video_name, status, URL, channel_name)
+        SELECT date, requestor, video_name, status, URL, channel_name FROM req WHERE id = %s
         """,
         (request_id,)
     )

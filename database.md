@@ -45,3 +45,14 @@ CREATE TABLE `req_history` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=167 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ```
+
+
+```
+CREATE TABLE `always_allow_channels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `channel_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `channel_name` (`channel_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+```
