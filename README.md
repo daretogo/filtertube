@@ -15,3 +15,6 @@ Then I as a parent get to at my leisure review the videos.  Any that I approve, 
 - I like using the database as the intermediary between jobs, and I like using a separate request collecting and approving system from the downloading system.   This would allow for quick replacement of the downloading system if YouTube-DL became broken.
 - I think there's a good chance I'll add a "approved channels" job that would look for videos in "Pending" state that are from particular channels that I trust and go ahead and auto-approve those. 
 
+- today filtertube got channel white listing and a user facing listing function.  I think these are pretty necessary features.  The channel white listing is cool because it's another way we use the "status" as our control loop.  We have a function that checks Pending status requests agains the always_allow_channels table and if it matches we just flip the status over to Approved.   Then everything normal picks up from there like any other approved request. 
+
+- I think in the future a browser plugin is really the way to make the requesting feature work better.  Something that could inject itself into the Youtube.com pages and stop the videos from playing after 15-30 seconds (enough to get a preview, but not watch) and add a "reqeust" button onto the page.  That would make the requesting expireince much better. 
