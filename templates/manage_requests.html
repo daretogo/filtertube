@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mt-4">Pending Requests</h1>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Video URL</th>
+                <th>Video Title</th>
+                <th>Channel Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.requestor }}</td>
+                <td><a href="{{ request.URL }}" target="_blank">{{ request.URL }}</a></td>
+                <td>{{ request.video_title }}</td>
+                <td>{{ request.channel_name }}</td>
+                <td>
+                    <button onclick="processRequest({{ request.id }}, 'approve')" class="btn btn-success">Approve</button>
+                    <button onclick="processRequest({{ request.id }}, 'deny')" class="btn btn-danger">Deny</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1 class="mt-4">Request History</h1>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Username</th>
+                <th>Video URL</th>
+                <th>Video Title</th>
+                <th>Channel Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in history_requests %}
+            <tr>
+                <td>{{ request.date }}</td>
+                <td>{{ request.requestor }}</td>
+                <td><a href="{{ request.URL }}" target="_blank">{{ request.URL }}</a></td>
+                <td>{{ request.video_title }}</td>
+                <td>{{ request.channel_name }}</td>
+                <td>{{ request.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="pagination">
+        <a href="{{ url_for('manage_requests', page=page+1) }}" rel="next">Next Page &raquo;</a>
+    </div>
+</div>
+
+<script>
+    function processRequest(requestId, action) {
+        fetch(`/api/process-request/${requestId}/${action}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                alert('Request processed successfully.');
+                location.reload();
+            } else {
+                alert('Failed to process request.');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

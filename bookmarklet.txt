@@ -1,0 +1,1 @@
+javascript:(function(){    var video_url = window.location.href;    var video_id = video_url.split('v=')[1].split('&')[0];    window.open('http://192.168.1.220:5000/api/video-request/Conner/' + video_id);})();
